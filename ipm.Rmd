@@ -11,6 +11,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
+library(ggplot2)
 ```
 
 # Carangas
@@ -24,14 +25,13 @@ Row {data-width=150}
 valueBox(30, icon = "fa-pencil")
 ```
 
-### IPM
+### Intensidad de pobreza (A)
 
 ```{r}
-gauge(20, min = 0, max = 100, symbol = '%', gaugeSectors(
-  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)))
+valueBox(30, icon = "fa-pencil")
 ```
 
-### Incidencia de pobreza (H)
+### Índice de pobreza Multidimensional (M0)
 
 ```{r}
 valueBox(30, icon = "fa-pencil")
@@ -68,8 +68,6 @@ fig
 ### Perfil en las comunidades
 
 ```{r}
-library(plotly)
-
 fig <- plot_ly(
     type = 'scatterpolar',
     r = runif(11,0,100),
