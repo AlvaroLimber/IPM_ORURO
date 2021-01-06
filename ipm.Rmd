@@ -1,0 +1,129 @@
+---
+title: "Perfiles de Pobreza"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    social: menu
+    theme: cerulean
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+```
+
+# Carangas
+
+Row {data-width=150}
+-----------------------------------------------------------------------
+
+### Incidencia de pobreza (H)
+
+```{r}
+valueBox(30, icon = "fa-pencil")
+```
+
+### IPM
+
+```{r}
+gauge(20, min = 0, max = 100, symbol = '%', gaugeSectors(
+  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)))
+```
+
+### Incidencia de pobreza (H)
+
+```{r}
+valueBox(30, icon = "fa-pencil")
+```
+
+Row {.tabset data-width=500}
+-----------------------------------------------------------------------
+
+### Perfil municipal
+
+```{r}
+library(plotly)
+
+fig <- plot_ly(
+    type = 'scatterpolar',
+    r = runif(11,0,100),
+    theta = paste0("D",1:11),
+    fill = 'toself'
+  ) 
+fig <- fig %>%
+  layout(
+    polar = list(
+      radialaxis = list(
+        visible = T,
+        range = c(0,100)
+      )
+    ),
+    showlegend = F
+  )
+
+fig
+```   
+
+### Perfil en las comunidades
+
+```{r}
+library(plotly)
+
+fig <- plot_ly(
+    type = 'scatterpolar',
+    r = runif(11,0,100),
+    theta = paste0("D",1:11),
+    fill = 'toself'
+  ) 
+fig <- fig %>%
+  layout(
+    polar = list(
+      radialaxis = list(
+        visible = T,
+        range = c(0,100)
+      )
+    ),
+    showlegend = F
+  )
+
+fig
+```   
+ 
+Column {.tabset .tabset-fade data-width=350}
+----------------------------------------------------------------------- 
+ 
+### Resumen general
+
+```{r}
+library(kableExtra)
+library(formattable)
+vs_dt <- iris[1:10, ]
+vs_dt[1:4] <- lapply(vs_dt[1:4], function(x) {
+    cell_spec(x, bold = T, 
+              color = spec_color(x, end = 0.9),
+              font_size = spec_font_size(x))
+})
+vs_dt[5] <- cell_spec(vs_dt[[5]], color = "white", bold = T,
+    background = spec_color(1:10, end = 0.9, option = "A", direction = -1))
+kbl(vs_dt, escape = F, align = "c") %>%
+  kable_classic("striped", full_width = F)
+```
+
+### Componentes
+
+```{r,results = 'asis'}
+#https://cran.r-project.org/web/packages/ztable/vignettes/heatmapTable.html
+library(ztable)
+library(magrittr)
+library(moonBook)
+x=table(acs$Dx,acs$smoking)
+z=ztable(x) 
+z %>% makeHeatmap()
+```
+
+### Sub componentes
+    
+```{r,results = 'asis'}
+z %>% makeHeatmap()
+```
