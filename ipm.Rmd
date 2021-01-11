@@ -1,17 +1,124 @@
 ---
 title: "Perfiles de Pobreza"
+subtitle: "Pobreza Multidimensional"
 output: 
   flexdashboard::flex_dashboard:
+    navbar:
+    - {title: "Ver en Redatam", href: " http://aru.noip.me/", align: right}  
+    - {icon: "fa-info-circle", href: "https://www.aru.org.bo/", align: right}  
+    - {icon: "fa-facebook", href: "https://www.facebook.com/FundacionARU", align: right}
+    - {icon: "fa-twitter", href: "https://twitter.com/arufoundation?lang=es", align: right}
+    - {icon: "fa-youtube", href: "https://www.youtube.com/user/ARUfoundation", align: right}
     orientation: columns
-    social: menu
-    theme: cerulean
+    theme: readable
+    logo: aru.png
 editor_options: 
   chunk_output_type: console
 ---
 
+<style type="text/css"> .sidebar { overflow: auto; } </style>
+
 ```{r setup, include=FALSE}
 library(flexdashboard)
 library(ggplot2)
+library(haven)
+library(dplyr)
+library(knitr)
+library(labelled)
+```
+
+```{css, echo=FALSE}
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 100px;
+}
+```
+
+```{css, echo=FALSE}
+.scroll-100 {
+  max-height: 100px;
+  overflow-y: auto;
+  background-color: inherit;
+}
+```
+
+```{r}
+bd<-read_dta("C:\\Users\\ALVARO\\Box\\ipm_oruro\\_data\\bd_dashboard_oruro_v1.dta")
+mpi_h<-bd %>% group_by(s0_1) %>% summarise(h=mean(`_mpi_h`,na.rm = T))
+mpi_a<-bd %>% group_by(s0_1) %>% summarise(a=mean(`_mpi_a`,na.rm = T))
+mpi_m0<-bd %>% group_by(s0_1) %>% summarise(m0=mean(`_mpi_m0`,na.rm = T))
+dim<-bd %>% group_by(s0_1) %>% summarise_at(vars(dim_1:dim_11),mean,na.rm=T)
+mindim<-bd %>% group_by(s0_1) %>% summarise_at(vars(dim_1:dim_11),min,na.rm=T)
+maxdim<-bd %>% group_by(s0_1) %>% summarise_at(vars(dim_1:dim_11),max,na.rm=T)
+
+sdim<-bd %>% group_by(s0_1) %>% summarise_at(vars(sdim_1:sdim_35),mean,na.rm=T)
+minsdim<-bd %>% group_by(s0_1) %>% summarise_at(vars(sdim_1:sdim_35),min,na.rm=T)
+maxsdim<-bd %>% group_by(s0_1) %>% summarise_at(vars(sdim_1:sdim_35),max,na.rm=T)
+
+
+dim[,-1]<-dim[,-1]*100
+mindim[,-1]<-mindim[,-1]*100
+maxdim[,-1]<-maxdim[,-1]*100
+
+sdim[,-1]<-sdim[,-1]*100
+minsdim[,-1]<-minsdim[,-1]*100
+maxsdim[,-1]<-maxsdim[,-1]*100
+
+dimcom<-bd %>% group_by(s0_1,s0_2) %>% summarise_at(vars(dim_1:dim_11),mean,na.rm=T)
+
+dimcom[,-c(1:2)]<-dimcom[,-c(1:2)]*100
+
+#tablas
+t1<-bd %>% group_by(s0_1) %>% summarise(n=n(),iedad=round(mean(s2_2),2),miniedad=min(s2_2),maxiedad=max(s2_2),jedad=round(mean(s2_7),2),minjedad=min(s2_7),maxjedad=max(s2_7))
+
+t2_1<-bd %>% group_by(s0_1) %>% mutate(malei=s2_3==1,femalei=s2_3==2,malej=s2_6==1,femalej=s2_6==2,both=s2_6==3) %>% summarise_at(vars(malei,femalei,malej,femalej,both),sum)
+
+t2_2<-bd %>% group_by(s0_1) %>% mutate(malei=s2_3==1,femalei=s2_3==2,malej=s2_6==1,femalej=s2_6==2,both=s2_6==3) %>% summarise_at(vars(malei,femalei,malej,femalej,both),mean)
+t2_2[,2:6]<-t2_2[,2:6]*100
+
+
+t3_1<-tapply(to_factor(bd$s2_8), bd$s0_1, table)
+t3_2<-sapply(t3_1, prop.table)*100
+
+lsdim<-c("Consumo",
+"Acceso estable",
+"Calidad nutricional",
+"Calidad",
+"Disponibilidad",
+"Acceso",
+"Estado de salud",
+"Acceso y disponibilidad",
+"Calidad de asistencia",
+"Instalaciones sanitarias",
+"Gestión de residuos",
+"Prácticas de higiene",
+"Calidad de la estructura de la vivienda",
+"Vestimenta",
+"Fuentes de energía",
+"Calidad",
+"Disponibilidad",
+"Acceso",
+"Tenencia de la tierra",
+"Calidad de la tierra",
+"Activos agrícolas",
+"Activos pecuarios / piscícolas",
+"Empleo y habilidades",
+"Servicios financieros",
+"Activos fijos y remesas",
+"Grado de exposición",
+"Capacidad de afrontamiento",
+"Capacidad de recuperación",
+"Acceso a educación",
+"Acceso a atención médica",
+"Igualdad social",
+"Prácticas agrícolas resilientes al clima",
+"Agua para la agricultura",
+"Capacidad humana",
+"Infraestructura resiliente al clima")
 ```
 
 # Carangas
@@ -22,19 +129,20 @@ Row {data-width=150}
 ### Incidencia de pobreza (H)
 
 ```{r}
-valueBox(30, icon = "fa-pencil")
+i<-3
+valueBox(paste0(round(mpi_h$h[i]*100,2),"%"), icon = "fa-line-chart",color="danger")
 ```
 
 ### Intensidad de pobreza (A)
 
 ```{r}
-valueBox(30, icon = "fa-pencil")
+valueBox(paste0(round(mpi_a$a[i]*100,2),"%"), icon = "fa-area-chart",color="success")
 ```
 
 ### Índice de pobreza Multidimensional (M0)
 
 ```{r}
-valueBox(30, icon = "fa-pencil")
+valueBox(round(mpi_m0$m0[i],2), icon = "fa-bar-chart",color="info")
 ```
 
 Row {.tabset data-width=500}
@@ -43,25 +151,49 @@ Row {.tabset data-width=500}
 ### Perfil municipal
 
 ```{r}
+ldim<-c(
+"Seguridad nutricional/alimentaria",
+"Abastecimiento de agua doméstica",
+"Salud y cuidado de la salud",
+"Saneamiento e higiene",
+"Vivienda ropa y energía",
+"Educación",
+"Activos agrícolas",
+"Activos no agrícolas",
+"Exposición y resistencia a shocks",
+"Igualdad social y de género",
+"Adaptación al cambio climático")
 library(plotly)
+m <- list(
+  l = 160,
+  r = 160,
+  b = 160,
+  t = 160,
+  pad = 4
+)
+mcom <- list(
+  l = 150,
+  r = 150,
+  b = 150,
+  t = 150,
+  pad = 4
+)
 
 fig <- plot_ly(
     type = 'scatterpolar',
-    r = runif(11,0,100),
-    theta = paste0("D",1:11),
+    r = round(t(dim[i,-1])[,1],2),
+    theta = ldim,
     fill = 'toself'
   ) 
 fig <- fig %>%
-  layout(
+  layout(margin=m,
     polar = list(
       radialaxis = list(
         visible = T,
         range = c(0,100)
       )
-    ),
-    showlegend = F
+    ),autoscale = TRUE
   )
-
 fig
 ```   
 
@@ -70,21 +202,32 @@ fig
 ```{r}
 fig <- plot_ly(
     type = 'scatterpolar',
-    r = runif(11,0,100),
-    theta = paste0("D",1:11),
     fill = 'toself'
   ) 
 fig <- fig %>%
-  layout(
+  add_trace(
+    r = round(t(dim[i,-1])[,1],2),
+    theta = ldim,
+    name = paste0("Municipio: ",names(attributes(dim$s0_1)$labels)[i])
+  )
+aux<-dimcom %>% filter(s0_1==i & !is.nan(dim_1))
+for(j in 1:nrow(aux)){
+fig <- fig %>%
+  add_trace(
+    r = round(t(aux[j,-c(1:2)])[,1],2),
+    theta = ldim,
+    name = aux[j,2]
+  )   
+}
+fig <- fig %>%
+  layout(margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
     polar = list(
       radialaxis = list(
         visible = T,
         range = c(0,100)
       )
-    ),
-    showlegend = F
+    )
   )
-
 fig
 ```   
  
@@ -96,16 +239,24 @@ Column {.tabset .tabset-fade data-width=350}
 ```{r}
 library(kableExtra)
 library(formattable)
-vs_dt <- iris[1:10, ]
-vs_dt[1:4] <- lapply(vs_dt[1:4], function(x) {
-    cell_spec(x, bold = T, 
-              color = spec_color(x, end = 0.9),
-              font_size = spec_font_size(x))
-})
-vs_dt[5] <- cell_spec(vs_dt[[5]], color = "white", bold = T,
-    background = spec_color(1:10, end = 0.9, option = "A", direction = -1))
-kbl(vs_dt, escape = F, align = "c") %>%
-  kable_classic("striped", full_width = F)
+
+t1out<-data.frame(rbind(c(t1[i,"n"],"",""),as.matrix(t1[i,3:5]),
+as.matrix(t1[i,6:8])))
+names(t1out)<-c("Valor/Promedio","Mínimo","Máximo")
+rownames(t1out)<-c("Hogares entrevistados","Edad del informante","Edad del jefe del hogar")
+
+t1out %>% kbl(caption = "Información general") %>% kable_classic()
+
+t2out<-data.frame(cbind(t(t2_1[i,-1]),round(t(t2_2[i,-1]),2)))
+names(t2out)<-c("Valor","%")
+rownames(t2out)<-c("Informantes Hombres","Informantes mujeres","Jefes de hogar: Hombres","Jefes de hogar: Mujeres","Jefes de hogar: Ambos")
+
+t2out %>% kbl(caption = "Estadísticas de género") %>% kable_classic()
+
+t3out<-data.frame(cbind(t3_1[[i]],round(t3_2[,i],2)))
+names(t3out)<-c("Valor","%")
+
+t3out %>% kbl(caption = "Estado civil del jefe del hogar") %>% kable_classic() 
 ```
 
 ### Componentes
@@ -115,13 +266,35 @@ kbl(vs_dt, escape = F, align = "c") %>%
 library(ztable)
 library(magrittr)
 library(moonBook)
-x=table(acs$Dx,acs$smoking)
-z=ztable(x) 
-z %>% makeHeatmap()
+
+x<-t(rbind(dim[i,-1],mindim[i,-1],maxdim[i,-1]))
+x<-data.frame("Dimensión"=paste0(1:11,". ",ldim),"Promedio"=round(x[,1],2),"Mínimo"=round(x[,2],2),"Máximo"=round(x[,3],2))
+rownames(x)<-NULL
+z=ztable(x,include.rownames=F) 
+z %>% makeHeatmap(cols = 2:4)
 ```
 
 ### Sub componentes
     
-```{r,results = 'asis'}
-z %>% makeHeatmap()
+```{r,results = 'asis', class.output="scroll-100"}
+x<-t(rbind(sdim[i,-1],minsdim[i,-1],maxsdim[i,-1]))
+
+rr1<-c(
+paste0("1. ",ldim[1]),rep("",2),
+paste0("2. ",ldim[2]),rep("",2),
+paste0("3. ",ldim[3]),rep("",2),
+paste0("4. ",ldim[4]),rep("",2),
+paste0("5. ",ldim[5]),rep("",2),
+paste0("6. ",ldim[6]),rep("",2),
+paste0("7. ",ldim[7]),rep("",3),
+paste0("8. ",ldim[8]),rep("",2),
+paste0("9. ",ldim[9]),rep("",2),
+paste0("10. ",ldim[10]),rep("",2),
+paste0("11. ",ldim[11]),rep("",3))
+
+x<-data.frame("Dimensión"=rr1,"Sub dimensión"=lsdim,"Promedio"=round(x[,1],2),"Mínimo"=round(x[,2],2),"Máximo"=round(x[,3],2))
+rownames(x)<-NULL
+
+z=ztable(x,include.rownames=F,hline.after=c(3,6,9,12,15,18,22,25,28,31)) 
+z %>% makeHeatmap(cols = 3:5)
 ```
