@@ -9,14 +9,13 @@ output:
     - {icon: "fa-facebook", href: "https://www.facebook.com/FundacionARU", align: right}
     - {icon: "fa-twitter", href: "https://twitter.com/arufoundation?lang=es", align: right}
     - {icon: "fa-youtube", href: "https://www.youtube.com/user/ARUfoundation", align: right}
-    orientation: columns
+    orientation: rows
+    vertical_layout: scroll
     theme: readable
     logo: aru.png
 editor_options: 
   chunk_output_type: console
 ---
-
-<style type="text/css"> .sidebar { overflow: auto; } </style>
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
@@ -25,25 +24,6 @@ library(haven)
 library(dplyr)
 library(knitr)
 library(labelled)
-```
-
-```{css, echo=FALSE}
-pre {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-pre[class] {
-  max-height: 100px;
-}
-```
-
-```{css, echo=FALSE}
-.scroll-100 {
-  max-height: 100px;
-  overflow-y: auto;
-  background-color: inherit;
-}
 ```
 
 ```{r}
@@ -123,7 +103,7 @@ lsdim<-c("Consumo",
 
 # Carangas
 
-Row {data-width=150}
+Row
 -----------------------------------------------------------------------
 
 ### Incidencia de pobreza (H)
@@ -145,10 +125,10 @@ valueBox(paste0(round(mpi_a$a[i]*100,2),"%"), icon = "fa-area-chart",color="succ
 valueBox(round(mpi_m0$m0[i],2), icon = "fa-bar-chart",color="info")
 ```
 
-Row {.tabset data-width=500}
+Row {.tabset}
 -----------------------------------------------------------------------
 
-### Perfil municipal
+### Perfil municipal {data-height=600}
 
 ```{r}
 ldim<-c(
@@ -165,17 +145,17 @@ ldim<-c(
 "Adaptación al cambio climático")
 library(plotly)
 m <- list(
-  l = 160,
-  r = 160,
-  b = 160,
-  t = 160,
+  l = 100,
+  r = 100,
+  b = 100,
+  t = 100,
   pad = 4
 )
 mcom <- list(
-  l = 150,
-  r = 150,
-  b = 150,
-  t = 150,
+  l = 100,
+  r = 100,
+  b = 100,
+  t = 100,
   pad = 4
 )
 
@@ -231,7 +211,7 @@ fig <- fig %>%
 fig
 ```   
  
-Column {.tabset .tabset-fade data-width=350}
+Row {.tabset}  
 ----------------------------------------------------------------------- 
  
 ### Resumen general
@@ -274,9 +254,9 @@ z=ztable(x,include.rownames=F)
 z %>% makeHeatmap(cols = 2:4)
 ```
 
-### Sub componentes
+### Sub componentes {data-height=1200}
     
-```{r,results = 'asis', class.output="scroll-100"}
+```{r,results = 'asis'}
 x<-t(rbind(sdim[i,-1],minsdim[i,-1],maxsdim[i,-1]))
 
 rr1<-c(
