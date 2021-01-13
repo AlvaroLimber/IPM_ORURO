@@ -101,7 +101,7 @@ lsdim<-c("Consumo",
 "Infraestructura resiliente al clima")
 ```
 
-# Carangas
+# Carangas {data-navmenu="Municipio" data-icon="fa-list"}
 
 Row
 -----------------------------------------------------------------------
@@ -110,6 +110,718 @@ Row
 
 ```{r}
 i<-3
+valueBox(paste0(round(mpi_h$h[i]*100,2),"%"), icon = "fa-line-chart",color="danger")
+```
+
+### Intensidad de pobreza (A)
+
+```{r}
+valueBox(paste0(round(mpi_a$a[i]*100,2),"%"), icon = "fa-area-chart",color="success")
+```
+
+### Índice de pobreza Multidimensional (M0)
+
+```{r}
+valueBox(round(mpi_m0$m0[i],2), icon = "fa-bar-chart",color="info")
+```
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Perfil municipal {data-height=600}
+
+```{r}
+ldim<-c(
+"Seguridad nutricional/alimentaria",
+"Abastecimiento de agua doméstica",
+"Salud y cuidado de la salud",
+"Saneamiento e higiene",
+"Vivienda ropa y energía",
+"Educación",
+"Activos agrícolas",
+"Activos no agrícolas",
+"Exposición y resistencia a shocks",
+"Igualdad social y de género",
+"Adaptación al cambio climático")
+library(plotly)
+m <- list(
+  l = 100,
+  r = 100,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+mcom <- list(
+  l = 100,
+  r = 100,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+
+fig <- plot_ly(
+    type = 'scatterpolar',
+    r = round(t(dim[i,-1])[,1],2),
+    theta = ldim,
+    fill = 'toself'
+  ) 
+fig <- fig %>%
+  layout(margin=m,
+    polar = list(
+      radialaxis = list(
+        visible = T,
+        range = c(0,100)
+      )
+    ),autoscale = TRUE
+  )
+fig
+```   
+
+### Perfil en las comunidades
+
+```{r}
+fig <- plot_ly(
+    type = 'scatterpolar',
+    fill = 'toself'
+  ) 
+fig <- fig %>%
+  add_trace(
+    r = round(t(dim[i,-1])[,1],2),
+    theta = ldim,
+    name = paste0("Municipio: ",names(attributes(dim$s0_1)$labels)[i])
+  )
+aux<-dimcom %>% filter(s0_1==i & !is.nan(dim_1))
+for(j in 1:nrow(aux)){
+fig <- fig %>%
+  add_trace(
+    r = round(t(aux[j,-c(1:2)])[,1],2),
+    theta = ldim,
+    name = aux[j,2]
+  )   
+}
+fig <- fig %>%
+  layout(margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
+    polar = list(
+      radialaxis = list(
+        visible = T,
+        range = c(0,100)
+      )
+    )
+  )
+fig
+```   
+ 
+Row {.tabset}  
+----------------------------------------------------------------------- 
+ 
+### Resumen general
+
+```{r}
+library(kableExtra)
+library(formattable)
+
+t1out<-data.frame(rbind(c(t1[i,"n"],"",""),as.matrix(t1[i,3:5]),
+as.matrix(t1[i,6:8])))
+names(t1out)<-c("Valor/Promedio","Mínimo","Máximo")
+rownames(t1out)<-c("Hogares entrevistados","Edad del informante","Edad del jefe del hogar")
+
+t1out %>% kbl(caption = "Información general") %>% kable_classic()
+
+t2out<-data.frame(cbind(t(t2_1[i,-1]),round(t(t2_2[i,-1]),2)))
+names(t2out)<-c("Valor","%")
+rownames(t2out)<-c("Informantes Hombres","Informantes mujeres","Jefes de hogar: Hombres","Jefes de hogar: Mujeres","Jefes de hogar: Ambos")
+
+t2out %>% kbl(caption = "Estadísticas de género") %>% kable_classic()
+
+t3out<-data.frame(cbind(t3_1[[i]],round(t3_2[,i],2)))
+names(t3out)<-c("Valor","%")
+
+t3out %>% kbl(caption = "Estado civil del jefe del hogar") %>% kable_classic() 
+```
+
+### Componentes
+
+```{r,results = 'asis'}
+#https://cran.r-project.org/web/packages/ztable/vignettes/heatmapTable.html
+library(ztable)
+library(magrittr)
+library(moonBook)
+
+x<-t(rbind(dim[i,-1],mindim[i,-1],maxdim[i,-1]))
+x<-data.frame("Dimensión"=paste0(1:11,". ",ldim),"Promedio"=round(x[,1],2),"Mínimo"=round(x[,2],2),"Máximo"=round(x[,3],2))
+rownames(x)<-NULL
+z=ztable(x,include.rownames=F) 
+z %>% makeHeatmap(cols = 2:4)
+```
+
+### Sub componentes {data-height=1200}
+    
+```{r,results = 'asis'}
+x<-t(rbind(sdim[i,-1],minsdim[i,-1],maxsdim[i,-1]))
+
+rr1<-c(
+paste0("1. ",ldim[1]),rep("",2),
+paste0("2. ",ldim[2]),rep("",2),
+paste0("3. ",ldim[3]),rep("",2),
+paste0("4. ",ldim[4]),rep("",2),
+paste0("5. ",ldim[5]),rep("",2),
+paste0("6. ",ldim[6]),rep("",2),
+paste0("7. ",ldim[7]),rep("",3),
+paste0("8. ",ldim[8]),rep("",2),
+paste0("9. ",ldim[9]),rep("",2),
+paste0("10. ",ldim[10]),rep("",2),
+paste0("11. ",ldim[11]),rep("",3))
+
+x<-data.frame("Dimensión"=rr1,"Sub dimensión"=lsdim,"Promedio"=round(x[,1],2),"Mínimo"=round(x[,2],2),"Máximo"=round(x[,3],2))
+rownames(x)<-NULL
+
+z=ztable(x,include.rownames=F,hline.after=c(3,6,9,12,15,18,22,25,28,31)) 
+z %>% makeHeatmap(cols = 3:5)
+```
+
+# AIO Uru Chipaya {data-navmenu="Municipio" data-icon="fa-list"}
+
+Row
+-----------------------------------------------------------------------
+
+### Incidencia de pobreza (H)
+
+```{r}
+i<-1
+valueBox(paste0(round(mpi_h$h[i]*100,2),"%"), icon = "fa-line-chart",color="danger")
+```
+
+### Intensidad de pobreza (A)
+
+```{r}
+valueBox(paste0(round(mpi_a$a[i]*100,2),"%"), icon = "fa-area-chart",color="success")
+```
+
+### Índice de pobreza Multidimensional (M0)
+
+```{r}
+valueBox(round(mpi_m0$m0[i],2), icon = "fa-bar-chart",color="info")
+```
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Perfil municipal {data-height=600}
+
+```{r}
+ldim<-c(
+"Seguridad nutricional/alimentaria",
+"Abastecimiento de agua doméstica",
+"Salud y cuidado de la salud",
+"Saneamiento e higiene",
+"Vivienda ropa y energía",
+"Educación",
+"Activos agrícolas",
+"Activos no agrícolas",
+"Exposición y resistencia a shocks",
+"Igualdad social y de género",
+"Adaptación al cambio climático")
+library(plotly)
+m <- list(
+  l = 100,
+  r = 100,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+mcom <- list(
+  l = 100,
+  r = 100,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+
+fig <- plot_ly(
+    type = 'scatterpolar',
+    r = round(t(dim[i,-1])[,1],2),
+    theta = ldim,
+    fill = 'toself'
+  ) 
+fig <- fig %>%
+  layout(margin=m,
+    polar = list(
+      radialaxis = list(
+        visible = T,
+        range = c(0,100)
+      )
+    ),autoscale = TRUE
+  )
+fig
+```   
+
+### Perfil en las comunidades
+
+```{r}
+fig <- plot_ly(
+    type = 'scatterpolar',
+    fill = 'toself'
+  ) 
+fig <- fig %>%
+  add_trace(
+    r = round(t(dim[i,-1])[,1],2),
+    theta = ldim,
+    name = paste0("Municipio: ",names(attributes(dim$s0_1)$labels)[i])
+  )
+aux<-dimcom %>% filter(s0_1==i & !is.nan(dim_1))
+for(j in 1:nrow(aux)){
+fig <- fig %>%
+  add_trace(
+    r = round(t(aux[j,-c(1:2)])[,1],2),
+    theta = ldim,
+    name = aux[j,2]
+  )   
+}
+fig <- fig %>%
+  layout(margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
+    polar = list(
+      radialaxis = list(
+        visible = T,
+        range = c(0,100)
+      )
+    )
+  )
+fig
+```   
+ 
+Row {.tabset}  
+----------------------------------------------------------------------- 
+ 
+### Resumen general
+
+```{r}
+library(kableExtra)
+library(formattable)
+
+t1out<-data.frame(rbind(c(t1[i,"n"],"",""),as.matrix(t1[i,3:5]),
+as.matrix(t1[i,6:8])))
+names(t1out)<-c("Valor/Promedio","Mínimo","Máximo")
+rownames(t1out)<-c("Hogares entrevistados","Edad del informante","Edad del jefe del hogar")
+
+t1out %>% kbl(caption = "Información general") %>% kable_classic()
+
+t2out<-data.frame(cbind(t(t2_1[i,-1]),round(t(t2_2[i,-1]),2)))
+names(t2out)<-c("Valor","%")
+rownames(t2out)<-c("Informantes Hombres","Informantes mujeres","Jefes de hogar: Hombres","Jefes de hogar: Mujeres","Jefes de hogar: Ambos")
+
+t2out %>% kbl(caption = "Estadísticas de género") %>% kable_classic()
+
+t3out<-data.frame(cbind(t3_1[[i]],round(t3_2[,i],2)))
+names(t3out)<-c("Valor","%")
+
+t3out %>% kbl(caption = "Estado civil del jefe del hogar") %>% kable_classic() 
+```
+
+### Componentes
+
+```{r,results = 'asis'}
+#https://cran.r-project.org/web/packages/ztable/vignettes/heatmapTable.html
+library(ztable)
+library(magrittr)
+library(moonBook)
+
+x<-t(rbind(dim[i,-1],mindim[i,-1],maxdim[i,-1]))
+x<-data.frame("Dimensión"=paste0(1:11,". ",ldim),"Promedio"=round(x[,1],2),"Mínimo"=round(x[,2],2),"Máximo"=round(x[,3],2))
+rownames(x)<-NULL
+z=ztable(x,include.rownames=F) 
+z %>% makeHeatmap(cols = 2:4)
+```
+
+### Sub componentes {data-height=1200}
+    
+```{r,results = 'asis'}
+x<-t(rbind(sdim[i,-1],minsdim[i,-1],maxsdim[i,-1]))
+
+rr1<-c(
+paste0("1. ",ldim[1]),rep("",2),
+paste0("2. ",ldim[2]),rep("",2),
+paste0("3. ",ldim[3]),rep("",2),
+paste0("4. ",ldim[4]),rep("",2),
+paste0("5. ",ldim[5]),rep("",2),
+paste0("6. ",ldim[6]),rep("",2),
+paste0("7. ",ldim[7]),rep("",3),
+paste0("8. ",ldim[8]),rep("",2),
+paste0("9. ",ldim[9]),rep("",2),
+paste0("10. ",ldim[10]),rep("",2),
+paste0("11. ",ldim[11]),rep("",3))
+
+x<-data.frame("Dimensión"=rr1,"Sub dimensión"=lsdim,"Promedio"=round(x[,1],2),"Mínimo"=round(x[,2],2),"Máximo"=round(x[,3],2))
+rownames(x)<-NULL
+
+z=ztable(x,include.rownames=F,hline.after=c(3,6,9,12,15,18,22,25,28,31)) 
+z %>% makeHeatmap(cols = 3:5)
+```
+
+# Coipasa {data-navmenu="Municipio" data-icon="fa-list"}
+
+Row
+-----------------------------------------------------------------------
+
+### Incidencia de pobreza (H)
+
+```{r}
+i<-2
+valueBox(paste0(round(mpi_h$h[i]*100,2),"%"), icon = "fa-line-chart",color="danger")
+```
+
+### Intensidad de pobreza (A)
+
+```{r}
+valueBox(paste0(round(mpi_a$a[i]*100,2),"%"), icon = "fa-area-chart",color="success")
+```
+
+### Índice de pobreza Multidimensional (M0)
+
+```{r}
+valueBox(round(mpi_m0$m0[i],2), icon = "fa-bar-chart",color="info")
+```
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Perfil municipal {data-height=600}
+
+```{r}
+ldim<-c(
+"Seguridad nutricional/alimentaria",
+"Abastecimiento de agua doméstica",
+"Salud y cuidado de la salud",
+"Saneamiento e higiene",
+"Vivienda ropa y energía",
+"Educación",
+"Activos agrícolas",
+"Activos no agrícolas",
+"Exposición y resistencia a shocks",
+"Igualdad social y de género",
+"Adaptación al cambio climático")
+library(plotly)
+m <- list(
+  l = 100,
+  r = 100,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+mcom <- list(
+  l = 100,
+  r = 100,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+
+fig <- plot_ly(
+    type = 'scatterpolar',
+    r = round(t(dim[i,-1])[,1],2),
+    theta = ldim,
+    fill = 'toself'
+  ) 
+fig <- fig %>%
+  layout(margin=m,
+    polar = list(
+      radialaxis = list(
+        visible = T,
+        range = c(0,100)
+      )
+    ),autoscale = TRUE
+  )
+fig
+```   
+
+### Perfil en las comunidades
+
+```{r}
+fig <- plot_ly(
+    type = 'scatterpolar',
+    fill = 'toself'
+  ) 
+fig <- fig %>%
+  add_trace(
+    r = round(t(dim[i,-1])[,1],2),
+    theta = ldim,
+    name = paste0("Municipio: ",names(attributes(dim$s0_1)$labels)[i])
+  )
+aux<-dimcom %>% filter(s0_1==i & !is.nan(dim_1))
+for(j in 1:nrow(aux)){
+fig <- fig %>%
+  add_trace(
+    r = round(t(aux[j,-c(1:2)])[,1],2),
+    theta = ldim,
+    name = aux[j,2]
+  )   
+}
+fig <- fig %>%
+  layout(margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
+    polar = list(
+      radialaxis = list(
+        visible = T,
+        range = c(0,100)
+      )
+    )
+  )
+fig
+```   
+ 
+Row {.tabset}  
+----------------------------------------------------------------------- 
+ 
+### Resumen general
+
+```{r}
+library(kableExtra)
+library(formattable)
+
+t1out<-data.frame(rbind(c(t1[i,"n"],"",""),as.matrix(t1[i,3:5]),
+as.matrix(t1[i,6:8])))
+names(t1out)<-c("Valor/Promedio","Mínimo","Máximo")
+rownames(t1out)<-c("Hogares entrevistados","Edad del informante","Edad del jefe del hogar")
+
+t1out %>% kbl(caption = "Información general") %>% kable_classic()
+
+t2out<-data.frame(cbind(t(t2_1[i,-1]),round(t(t2_2[i,-1]),2)))
+names(t2out)<-c("Valor","%")
+rownames(t2out)<-c("Informantes Hombres","Informantes mujeres","Jefes de hogar: Hombres","Jefes de hogar: Mujeres","Jefes de hogar: Ambos")
+
+t2out %>% kbl(caption = "Estadísticas de género") %>% kable_classic()
+
+t3out<-data.frame(cbind(t3_1[[i]],round(t3_2[,i],2)))
+names(t3out)<-c("Valor","%")
+
+t3out %>% kbl(caption = "Estado civil del jefe del hogar") %>% kable_classic() 
+```
+
+### Componentes
+
+```{r,results = 'asis'}
+#https://cran.r-project.org/web/packages/ztable/vignettes/heatmapTable.html
+library(ztable)
+library(magrittr)
+library(moonBook)
+
+x<-t(rbind(dim[i,-1],mindim[i,-1],maxdim[i,-1]))
+x<-data.frame("Dimensión"=paste0(1:11,". ",ldim),"Promedio"=round(x[,1],2),"Mínimo"=round(x[,2],2),"Máximo"=round(x[,3],2))
+rownames(x)<-NULL
+z=ztable(x,include.rownames=F) 
+z %>% makeHeatmap(cols = 2:4)
+```
+
+### Sub componentes {data-height=1200}
+    
+```{r,results = 'asis'}
+x<-t(rbind(sdim[i,-1],minsdim[i,-1],maxsdim[i,-1]))
+
+rr1<-c(
+paste0("1. ",ldim[1]),rep("",2),
+paste0("2. ",ldim[2]),rep("",2),
+paste0("3. ",ldim[3]),rep("",2),
+paste0("4. ",ldim[4]),rep("",2),
+paste0("5. ",ldim[5]),rep("",2),
+paste0("6. ",ldim[6]),rep("",2),
+paste0("7. ",ldim[7]),rep("",3),
+paste0("8. ",ldim[8]),rep("",2),
+paste0("9. ",ldim[9]),rep("",2),
+paste0("10. ",ldim[10]),rep("",2),
+paste0("11. ",ldim[11]),rep("",3))
+
+x<-data.frame("Dimensión"=rr1,"Sub dimensión"=lsdim,"Promedio"=round(x[,1],2),"Mínimo"=round(x[,2],2),"Máximo"=round(x[,3],2))
+rownames(x)<-NULL
+
+z=ztable(x,include.rownames=F,hline.after=c(3,6,9,12,15,18,22,25,28,31)) 
+z %>% makeHeatmap(cols = 3:5)
+```
+
+# Esmeralda {data-navmenu="Municipio" data-icon="fa-list"}
+
+Row
+-----------------------------------------------------------------------
+
+### Incidencia de pobreza (H)
+
+```{r}
+i<-5
+valueBox(paste0(round(mpi_h$h[i]*100,2),"%"), icon = "fa-line-chart",color="danger")
+```
+
+### Intensidad de pobreza (A)
+
+```{r}
+valueBox(paste0(round(mpi_a$a[i]*100,2),"%"), icon = "fa-area-chart",color="success")
+```
+
+### Índice de pobreza Multidimensional (M0)
+
+```{r}
+valueBox(round(mpi_m0$m0[i],2), icon = "fa-bar-chart",color="info")
+```
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Perfil municipal {data-height=600}
+
+```{r}
+ldim<-c(
+"Seguridad nutricional/alimentaria",
+"Abastecimiento de agua doméstica",
+"Salud y cuidado de la salud",
+"Saneamiento e higiene",
+"Vivienda ropa y energía",
+"Educación",
+"Activos agrícolas",
+"Activos no agrícolas",
+"Exposición y resistencia a shocks",
+"Igualdad social y de género",
+"Adaptación al cambio climático")
+library(plotly)
+m <- list(
+  l = 100,
+  r = 100,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+mcom <- list(
+  l = 100,
+  r = 100,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+
+fig <- plot_ly(
+    type = 'scatterpolar',
+    r = round(t(dim[i,-1])[,1],2),
+    theta = ldim,
+    fill = 'toself'
+  ) 
+fig <- fig %>%
+  layout(margin=m,
+    polar = list(
+      radialaxis = list(
+        visible = T,
+        range = c(0,100)
+      )
+    ),autoscale = TRUE
+  )
+fig
+```   
+
+### Perfil en las comunidades
+
+```{r}
+fig <- plot_ly(
+    type = 'scatterpolar',
+    fill = 'toself'
+  ) 
+fig <- fig %>%
+  add_trace(
+    r = round(t(dim[i,-1])[,1],2),
+    theta = ldim,
+    name = paste0("Municipio: ",names(attributes(dim$s0_1)$labels)[i])
+  )
+aux<-dimcom %>% filter(s0_1==i & !is.nan(dim_1))
+for(j in 1:nrow(aux)){
+fig <- fig %>%
+  add_trace(
+    r = round(t(aux[j,-c(1:2)])[,1],2),
+    theta = ldim,
+    name = aux[j,2]
+  )   
+}
+fig <- fig %>%
+  layout(margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
+    polar = list(
+      radialaxis = list(
+        visible = T,
+        range = c(0,100)
+      )
+    )
+  )
+fig
+```   
+ 
+Row {.tabset}  
+----------------------------------------------------------------------- 
+ 
+### Resumen general
+
+```{r}
+library(kableExtra)
+library(formattable)
+
+t1out<-data.frame(rbind(c(t1[i,"n"],"",""),as.matrix(t1[i,3:5]),
+as.matrix(t1[i,6:8])))
+names(t1out)<-c("Valor/Promedio","Mínimo","Máximo")
+rownames(t1out)<-c("Hogares entrevistados","Edad del informante","Edad del jefe del hogar")
+
+t1out %>% kbl(caption = "Información general") %>% kable_classic()
+
+t2out<-data.frame(cbind(t(t2_1[i,-1]),round(t(t2_2[i,-1]),2)))
+names(t2out)<-c("Valor","%")
+rownames(t2out)<-c("Informantes Hombres","Informantes mujeres","Jefes de hogar: Hombres","Jefes de hogar: Mujeres","Jefes de hogar: Ambos")
+
+t2out %>% kbl(caption = "Estadísticas de género") %>% kable_classic()
+
+t3out<-data.frame(cbind(t3_1[[i]],round(t3_2[,i],2)))
+names(t3out)<-c("Valor","%")
+
+t3out %>% kbl(caption = "Estado civil del jefe del hogar") %>% kable_classic() 
+```
+
+### Componentes
+
+```{r,results = 'asis'}
+#https://cran.r-project.org/web/packages/ztable/vignettes/heatmapTable.html
+library(ztable)
+library(magrittr)
+library(moonBook)
+
+x<-t(rbind(dim[i,-1],mindim[i,-1],maxdim[i,-1]))
+x<-data.frame("Dimensión"=paste0(1:11,". ",ldim),"Promedio"=round(x[,1],2),"Mínimo"=round(x[,2],2),"Máximo"=round(x[,3],2))
+rownames(x)<-NULL
+z=ztable(x,include.rownames=F) 
+z %>% makeHeatmap(cols = 2:4)
+```
+
+### Sub componentes {data-height=1200}
+    
+```{r,results = 'asis'}
+x<-t(rbind(sdim[i,-1],minsdim[i,-1],maxsdim[i,-1]))
+
+rr1<-c(
+paste0("1. ",ldim[1]),rep("",2),
+paste0("2. ",ldim[2]),rep("",2),
+paste0("3. ",ldim[3]),rep("",2),
+paste0("4. ",ldim[4]),rep("",2),
+paste0("5. ",ldim[5]),rep("",2),
+paste0("6. ",ldim[6]),rep("",2),
+paste0("7. ",ldim[7]),rep("",3),
+paste0("8. ",ldim[8]),rep("",2),
+paste0("9. ",ldim[9]),rep("",2),
+paste0("10. ",ldim[10]),rep("",2),
+paste0("11. ",ldim[11]),rep("",3))
+
+x<-data.frame("Dimensión"=rr1,"Sub dimensión"=lsdim,"Promedio"=round(x[,1],2),"Mínimo"=round(x[,2],2),"Máximo"=round(x[,3],2))
+rownames(x)<-NULL
+
+z=ztable(x,include.rownames=F,hline.after=c(3,6,9,12,15,18,22,25,28,31)) 
+z %>% makeHeatmap(cols = 3:5)
+```
+
+# Yunguyo del Litoral {data-navmenu="Municipio" data-icon="fa-list"}
+
+Row
+-----------------------------------------------------------------------
+
+### Incidencia de pobreza (H)
+
+```{r}
+i<-1
 valueBox(paste0(round(mpi_h$h[i]*100,2),"%"), icon = "fa-line-chart",color="danger")
 ```
 
