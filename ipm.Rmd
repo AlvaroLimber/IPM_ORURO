@@ -1,14 +1,10 @@
 ---
-title: "Perfiles de Pobreza"
-subtitle: "Pobreza Multidimensional"
+title: "Pobreza Multidimensional"
 output: 
   flexdashboard::flex_dashboard:
     navbar:
-    - {title: "Ver en Redatam", href: " http://aru.noip.me/", align: right}  
+    - {title: "En Redatam", href: " http://aru.noip.me/", align: right}  
     - {icon: "fa-info-circle", href: "https://www.aru.org.bo/", align: right}  
-    - {icon: "fa-facebook", href: "https://www.facebook.com/FundacionARU", align: right}
-    - {icon: "fa-twitter", href: "https://twitter.com/arufoundation?lang=es", align: right}
-    - {icon: "fa-youtube", href: "https://www.youtube.com/user/ARUfoundation", align: right}
     orientation: rows
     vertical_layout: scroll
     theme: readable
@@ -821,7 +817,7 @@ Row
 ### Incidencia de pobreza (H)
 
 ```{r}
-i<-1
+i<-4
 valueBox(paste0(round(mpi_h$h[i]*100,2),"%"), icon = "fa-line-chart",color="danger")
 ```
 
