@@ -162,7 +162,7 @@ fig <- plot_ly(
     fill = 'toself'
   ) 
 fig <- fig %>%
-  layout(margin=m,
+  layout(title="Municipio de Carangas",margin=m,
     polar = list(
       radialaxis = list(
         visible = T,
@@ -196,7 +196,7 @@ fig <- fig %>%
   )   
 }
 fig <- fig %>%
-  layout(margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
+  layout(title="Municipio de Carangas",margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
     polar = list(
       radialaxis = list(
         visible = T,
@@ -275,7 +275,7 @@ z=ztable(x,include.rownames=F,hline.after=c(3,6,9,12,15,18,22,25,28,31))
 z %>% makeHeatmap(cols = 3:5)
 ```
 
-# AIO Uru Chipaya {data-navmenu="Municipio" data-icon="fa-list"}
+# AIOC Uru Chipaya {data-navmenu="Municipio" data-icon="fa-list"}
 
 Row
 -----------------------------------------------------------------------
@@ -340,7 +340,7 @@ fig <- plot_ly(
     fill = 'toself'
   ) 
 fig <- fig %>%
-  layout(margin=m,
+  layout(title="AIOC Uru Chipaya",margin=m,
     polar = list(
       radialaxis = list(
         visible = T,
@@ -374,7 +374,7 @@ fig <- fig %>%
   )   
 }
 fig <- fig %>%
-  layout(margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
+  layout(title="AIOC Uru Chipaya",margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
     polar = list(
       radialaxis = list(
         visible = T,
@@ -518,7 +518,7 @@ fig <- plot_ly(
     fill = 'toself'
   ) 
 fig <- fig %>%
-  layout(margin=m,
+  layout(title="Municipio de Coipasa",margin=m,
     polar = list(
       radialaxis = list(
         visible = T,
@@ -552,7 +552,7 @@ fig <- fig %>%
   )   
 }
 fig <- fig %>%
-  layout(margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
+  layout(title="Municipio de Coipasa",margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
     polar = list(
       radialaxis = list(
         visible = T,
@@ -696,7 +696,7 @@ fig <- plot_ly(
     fill = 'toself'
   ) 
 fig <- fig %>%
-  layout(margin=m,
+  layout(title="Municipio de Esmeralda",margin=m,
     polar = list(
       radialaxis = list(
         visible = T,
@@ -730,7 +730,7 @@ fig <- fig %>%
   )   
 }
 fig <- fig %>%
-  layout(margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
+  layout(title="Municipio de Esmeralda",margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
     polar = list(
       radialaxis = list(
         visible = T,
@@ -874,7 +874,7 @@ fig <- plot_ly(
     fill = 'toself'
   ) 
 fig <- fig %>%
-  layout(margin=m,
+  layout(title="Municipio de Yunguyo del Litoral",margin=m,
     polar = list(
       radialaxis = list(
         visible = T,
@@ -908,7 +908,7 @@ fig <- fig %>%
   )   
 }
 fig <- fig %>%
-  layout(margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
+  layout(title="Municipio de Yunguyo del Litoral",margin=mcom,legend = list(orientation = 'h',x = 0, y = -0.7,font = list(size = 10)),
     polar = list(
       radialaxis = list(
         visible = T,
