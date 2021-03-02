@@ -27,13 +27,13 @@ bd<-read_dta("C:\\Users\\ALVARO\\Box\\ipm_oruro\\_data\\bd_dashboard_oruro_v1.dt
 mpi_h<-bd %>% group_by(s0_1) %>% summarise(h=mean(`_mpi_h`,na.rm = T))
 mpi_a<-bd %>% group_by(s0_1) %>% summarise(a=mean(`_mpi_a`,na.rm = T))
 mpi_m0<-bd %>% group_by(s0_1) %>% summarise(m0=mean(`_mpi_m0`,na.rm = T))
-dim<-bd %>% group_by(s0_1) %>% summarise_at(vars(dim_1:dim_11),mean,na.rm=T)
-mindim<-bd %>% group_by(s0_1) %>% summarise_at(vars(dim_1:dim_11),min,na.rm=T)
-maxdim<-bd %>% group_by(s0_1) %>% summarise_at(vars(dim_1:dim_11),max,na.rm=T)
+dim<-bd %>% filter(`_mpi_h`==1) %>% group_by(s0_1) %>% summarise_at(vars(dim_1:dim_11),mean,na.rm=T)
+mindim<-bd %>% filter(`_mpi_h`==1) %>% group_by(s0_1) %>% summarise_at(vars(dim_1:dim_11),min,na.rm=T)
+maxdim<-bd %>% filter(`_mpi_h`==1) %>% group_by(s0_1) %>% summarise_at(vars(dim_1:dim_11),max,na.rm=T)
 
-sdim<-bd %>% group_by(s0_1) %>% summarise_at(vars(sdim_1:sdim_35),mean,na.rm=T)
-minsdim<-bd %>% group_by(s0_1) %>% summarise_at(vars(sdim_1:sdim_35),min,na.rm=T)
-maxsdim<-bd %>% group_by(s0_1) %>% summarise_at(vars(sdim_1:sdim_35),max,na.rm=T)
+sdim<-bd %>% filter(`_mpi_h`==1) %>% group_by(s0_1) %>% summarise_at(vars(sdim_1:sdim_35),mean,na.rm=T)
+minsdim<-bd %>% filter(`_mpi_h`==1) %>% group_by(s0_1) %>% summarise_at(vars(sdim_1:sdim_35),min,na.rm=T)
+maxsdim<-bd %>% filter(`_mpi_h`==1) %>%group_by(s0_1) %>% summarise_at(vars(sdim_1:sdim_35),max,na.rm=T)
 
 
 dim[,-1]<-dim[,-1]*100
